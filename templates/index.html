@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Telecom Support Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #d0f0ff 0%, #f0fbff 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #chatbox {
+            width: 100%;
+            max-width: 600px;
+            height: 800px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        #header {
+            background: rgba(173, 216, 230, 0.7);
+            color: #003366;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            border-bottom: 1px solid #b0e0e6;
+            position: relative;
+            font-weight: bold;
+        }
+
+        #header .actions {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            display: flex;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        #messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            display: flex;
+            max-width: 80%;
+            align-items: center;
+        }
+
+        .user {
+            align-self: flex-end;
+            justify-content: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .bot {
+            align-self: flex-start;
+            justify-content: flex-start;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            margin: 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0077b6;
+        }
+
+        .text {
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        .user .text {
+            background: linear-gradient(135deg, #90e0ef, #48cae4);
+            color: #003366;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot .text {
+            background-color: #e0f7fa;
+            color: #003366;
+            border-bottom-left-radius: 4px;
+        }
+
+        .text:hover {
+            transform: scale(1.02);
+            transition: transform 0.2s ease;
+        }
+
+        #inputArea {
+            display: flex;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid #b0e0e6;
+        }
+
+        #input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 20px;
+            border: 1px solid #b0e0e6;
+            background: #f0fbff;
+            font-size: 14px;
+            outline: none;
+            color: #003366;
+        }
+
+        #sendBtn {
+            background: linear-gradient(135deg, #48cae4, #00b4d8);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            margin-left: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #sendBtn:hover {
+            background: linear-gradient(135deg, #00b4d8, #0077b6);
+        }
+
+        .prompt {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.6);
+            color: #003366;
+            padding: 8px 12px;
+            border: 1px solid #b0e0e6;
+            border-radius: 20px;
+            margin: 4px 2px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .prompt:hover {
+            background: #e0f7fa;
+        }
+
+        .typing .dot {
+            height: 6px;
+            width: 6px;
+            margin: 0 2px;
+            background-color: #0077b6;
+            border-radius: 50%;
+            display: inline-block;
+            animation: blink 1.4s infinite both;
+        }
+
+        @keyframes blink {
+
+            0%,
+            80%,
+            100% {
+                opacity: 0;
+            }
+
+            40% {
+                opacity: 1;
+            }
+        }
+
+        /* History Sidebar */
+        #historySidebar {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 300px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 999;
+            padding: 20px;
+        }
+
+        #historySidebar.open {
+            right: 0;
+        }
+
+        #closeSidebar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #0077b6;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+
+        .historyItem {
+            padding: 10px;
+            margin: 5px 0;
+            border-bottom: 1px solid #b0e0e6;
+            font-size: 14px;
+            cursor: pointer;
+            background: rgba(224, 247, 250, 0.5);
+            border-radius: 8px;
+            color: #003366;
+        }
+
+        .historyItem:hover {
+            background-color: #d0f0ff;
+        }
+
+        .feedback {
+            margin-top: 8px;
+            font-size: 18px;
+            color: #0077b6;
+            cursor: pointer;
+        }
+
+        .feedback span {
+            margin-right: 10px;
+            transition: transform 0.2s;
+        }
+
+        .feedback span:hover {
+            transform: scale(1.3);
+        }
+
+            @media (max-width: 768px) {
+            #chatbox {
+            width: 95%;
+            height: 90vh;
+            border-radius: 12px;
+            }
+            
+            #messages {
+            padding: 10px;
+            gap: 10px;
+            }
+            
+            .text {
+            font-size: 13px;
+            padding: 8px 12px;
+            }
+            
+            .prompt {
+            font-size: 12px;
+            padding: 6px 10px;
+            margin: 3px 1px;
+            }
+            
+            #input {
+            font-size: 13px;
+            padding: 10px;
+            }
+            
+            #sendBtn {
+            padding: 8px 14px;
+            font-size: 14px;
+            }
+            
+            #header {
+            font-size: 18px;
+            padding: 12px;
+            }
+            
+            .feedback {
+            font-size: 16px;
+            }
+            
+            .icon {
+            width: 20px;
+            height: 20px;
+            }
+            
+            #historySidebar {
+            width: 90%;
+            right: -100%;
+            }
+            
+            #historySidebar.open {
+            right: 0;
+            }
+            }
+            
+            @media (max-width: 480px) {
+            #chatbox {
+            height: 95vh;
+            }
+            
+            .text {
+            font-size: 12px;
+            padding: 7px 10px;
+            }
+            
+            .prompt {
+            font-size: 11px;
+            padding: 5px 8px;
+            }
+            
+            #input {
+            font-size: 12px;
+            padding: 8px;
+            }
+            
+            #sendBtn {
+            padding: 6px 12px;
+            font-size: 13px;
+            }
+            
+            .feedback {
+            font-size: 14px;
+            }
+            
+            .icon {
+            width: 18px;
+            height: 18px;
+            margin: 0 6px;
+            }
+            
+            #header {
+            font-size: 16px;
+            }
+            
+            #closeSidebar {
+            padding: 3px 6px;
+            font-size: 12px;
+            }
+            
+            .historyItem {
+            font-size: 13px;
+            padding: 8px;
+            }
+            }
+    </style>
+
+
+</head>
+
+<body>
+    <div id="chatbox">
+        <div id="header">
+            Telecom Infrastructure Chatbot
+            <div class="actions">
+                <span onclick="resetChat()"><i class="fas fa-sync-alt"></i></span>
+                <span onclick="showHistory()"><i class="fas fa-history"></i></span>
+            </div>
+        </div>
+        <div id="messages">
+            <div class="welcome">
+                <p><strong>Welcome! 👋</strong><br>How can I assist you today?</p>
+                <div class="prompt" onclick="quickSend('Router not working')">Router not working</div>
+                <div class="prompt" onclick="quickSend('Internet slow')">Internet slow</div>
+                <div class="prompt" onclick="quickSend('Modem warranty')">Modem warranty</div>
+            </div>
+        </div>
+        <div id="inputArea">
+            <input id="input" type="text" placeholder="Type a message..."
+                onkeydown="if(event.key==='Enter'){sendMessage()}" />
+            <button id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- History Sidebar -->
+    <div id="historySidebar">
+        <button id="closeSidebar" onclick="toggleHistory()">X</button>
+        <h3>Chat History</h3>
+        <div id="historyList"></div>
+    </div>
+
+    <script>
+        let isFirstMessage = true;
+        let chatHistory = [];
+
+        async function sendMessage() {
+            const input = document.getElementById("input");
+            const message = input.value.trim();
+            // Takes the text from the input box.
+            if (!message) return;
+            // If the user sends nothing (empty), the function stops.
+
+            if (isFirstMessage) {
+                document.querySelector(".welcome")?.remove();
+                isFirstMessage = false;
+            }
+            // If this is the first message, remove the welcome screen and update the flag.
+
+            const userDiv = document.createElement("div");
+            userDiv.classList.add("message", "user");
+            userDiv.innerHTML = `
+                <div class="icon"><i class="fas fa-user"></i></div>
+                <div class="text">${message}</div>`;
+            document.getElementById("messages").appendChild(userDiv);
+            input.value = "";
+            scrollToBottom();
+            //  Creates a message bubble for the user.
+            // Adds it to the chat screen.
+            // Clears the input box.
+            // Scrolls chat to the bottom.
+
+            const typingDiv = document.createElement("div");
+            typingDiv.classList.add("message", "bot");
+            typingDiv.id = "typing";
+            typingDiv.innerHTML = `
+                <div class="icon"><i class="fas fa-robot"></i></div>
+                <div class="text typing">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>`;
+            document.getElementById("messages").appendChild(typingDiv);
+            scrollToBottom();
+            //Creates a "typing..." animation using 3 dots.
+            // Shows it in the chat while the bot is thinking.
+
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message })
+            });
+            const data = await response.json();
+            // Sends the user's message to the Flask backend (/chat endpoint).
+            // Waits for the bot’s reply.
+
+
+            document.getElementById("typing").remove();
+            // Once the reply is ready, removes the typing dots.
+
+            const botDiv = document.createElement("div");
+            botDiv.classList.add("message", "bot");
+            botDiv.innerHTML = `
+                <div class="icon"><i class="fas fa-robot"></i></div>
+                <div class="text">${data.response}</div>
+              <div class="feedback">
+  <span class="thumb" data-rating="👍" data-question="${message}" data-answer="${data.response}">👍</span>
+  <span class="thumb" data-rating="👎" data-question="${message}" data-answer="${data.response}">👎</span>
+</div>
+`;
+            document.getElementById("messages").appendChild(botDiv);
+            // Shows the bot's reply in a bubble.
+            // Adds two feedback buttons: 👍 and 👎
+            // Attach event listeners for new feedback buttons
+            botDiv.querySelectorAll(".thumb").forEach(el => {
+                el.addEventListener("click", function () {
+                    const rating = this.getAttribute("data-rating");
+                    const message = this.getAttribute("data-question");
+                    const response = this.getAttribute("data-answer");
+
+                    fetch("/feedback", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message, response, rating })
+                    })
+                        .then(() => alert("Thanks for your feedback!"))
+                        .catch(err => console.error("Feedback error:", err));
+                });
+            });
+
+            scrollToBottom();
+        }
+        // When user clicks 👍 or 👎:
+        // Sends that feedback to the backend (/feedback endpoint).
+        // Shows a thank-you alert.
+
+        function quickSend(text) {
+            document.getElementById("input").value = text;
+            sendMessage();
+        }
+        //the three predefined messages
+
+        function scrollToBottom() {
+            const messages = document.getElementById("messages");
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function resetChat() {
+            const messagesDiv = document.getElementById("messages");
+
+            const currentChat = Array.from(messagesDiv.querySelectorAll(".message"))
+                .map(msg => msg.textContent);
+            if (currentChat.length > 0) chatHistory.push(currentChat);
+
+            messagesDiv.innerHTML = `
+                <div class="welcome">
+                    <p><strong>Welcome! 👋</strong><br>How can I assist you today?</p>
+                    <div class="prompt" onclick="quickSend('Router not working')">Router not working</div>
+                    <div class="prompt" onclick="quickSend('Internet slow')">Internet slow</div>
+                    <div class="prompt" onclick="quickSend('Modem warranty')">Modem warranty</div>
+                </div>
+            `;
+            isFirstMessage = true;
+        }
+
+        function toggleHistory() {
+            const sidebar = document.getElementById("historySidebar");
+            sidebar.classList.toggle("open");
+        }
+
+        function showHistory() {
+            const historyList = document.getElementById("historyList");
+            historyList.innerHTML = "";
+
+            if (chatHistory.length === 0) {
+                historyList.innerHTML = "<p>No previous chats available.</p>";
+            } else {
+                chatHistory.forEach((chat, index) => {
+                    const chatBlock = document.createElement("div");
+                    chatBlock.classList.add("historyItem");
+
+                    // Get the first user message (even index 0)
+                    const summary = chat[0]?.length > 50 ? chat[0].substring(0, 50) + "..." : chat[0];
+
+                    // Show only summary in the chat list
+                    chatBlock.innerHTML =  ` <strong>Chat ${index + 1}:</strong> ${summary}`;
+
+                    // On click, replay full chat
+                    chatBlock.addEventListener("click", function () {
+                        const messagesDiv = document.getElementById("messages");
+                        messagesDiv.innerHTML = "";
+                        isFirstMessage = false;
+
+                        chat.forEach((line, i) => {
+                            const messageDiv = document.createElement("div");
+                            messageDiv.classList.add("message");
+
+                            if (i % 2 === 0) {
+                                messageDiv.classList.add("user");
+                                messageDiv.innerHTML = `
+                            <div class="icon"><i class="fas fa-user"></i></div>
+                            <div class="text">${line}</div>`;
+                            } else {
+                                messageDiv.classList.add("bot");
+                                messageDiv.innerHTML = `
+                            <div class="icon"><i class="fas fa-robot"></i></div>
+                            <div class="text">${line}</div>`;
+                            }
+
+                            messagesDiv.appendChild(messageDiv);
+                        });
+
+                        scrollToBottom();
+                        toggleHistory();
+                    });
+
+                    historyList.appendChild(chatBlock);
+                });
+            }
+            toggleHistory();
+        }
+
+    </script>
+</body>
+
+</html>
