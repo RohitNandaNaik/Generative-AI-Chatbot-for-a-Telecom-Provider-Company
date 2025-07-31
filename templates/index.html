@@ -249,112 +249,112 @@
             transform: scale(1.3);
         }
 
-            @media (max-width: 768px) {
+        @media (max-width: 768px) {
             #chatbox {
-            width: 95%;
-            height: 90vh;
-            border-radius: 12px;
+                width: 95%;
+                height: 90vh;
+                border-radius: 12px;
             }
-            
+
             #messages {
-            padding: 10px;
-            gap: 10px;
+                padding: 10px;
+                gap: 10px;
             }
-            
+
             .text {
-            font-size: 13px;
-            padding: 8px 12px;
+                font-size: 13px;
+                padding: 8px 12px;
             }
-            
+
             .prompt {
-            font-size: 12px;
-            padding: 6px 10px;
-            margin: 3px 1px;
+                font-size: 12px;
+                padding: 6px 10px;
+                margin: 3px 1px;
             }
-            
+
             #input {
-            font-size: 13px;
-            padding: 10px;
+                font-size: 13px;
+                padding: 10px;
             }
-            
+
             #sendBtn {
-            padding: 8px 14px;
-            font-size: 14px;
+                padding: 8px 14px;
+                font-size: 14px;
             }
-            
+
             #header {
-            font-size: 18px;
-            padding: 12px;
+                font-size: 18px;
+                padding: 12px;
             }
-            
+
             .feedback {
-            font-size: 16px;
+                font-size: 16px;
             }
-            
+
             .icon {
-            width: 20px;
-            height: 20px;
+                width: 20px;
+                height: 20px;
             }
-            
+
             #historySidebar {
-            width: 90%;
-            right: -100%;
+                width: 90%;
+                right: -100%;
             }
-            
+
             #historySidebar.open {
-            right: 0;
+                right: 0;
             }
-            }
-            
-            @media (max-width: 480px) {
+        }
+
+        @media (max-width: 480px) {
             #chatbox {
-            height: 95vh;
+                height: 95vh;
             }
-            
+
             .text {
-            font-size: 12px;
-            padding: 7px 10px;
+                font-size: 12px;
+                padding: 7px 10px;
             }
-            
+
             .prompt {
-            font-size: 11px;
-            padding: 5px 8px;
+                font-size: 11px;
+                padding: 5px 8px;
             }
-            
+
             #input {
-            font-size: 12px;
-            padding: 8px;
+                font-size: 12px;
+                padding: 8px;
             }
-            
+
             #sendBtn {
-            padding: 6px 12px;
-            font-size: 13px;
+                padding: 6px 12px;
+                font-size: 13px;
             }
-            
+
             .feedback {
-            font-size: 14px;
+                font-size: 14px;
             }
-            
+
             .icon {
-            width: 18px;
-            height: 18px;
-            margin: 0 6px;
+                width: 18px;
+                height: 18px;
+                margin: 0 6px;
             }
-            
+
             #header {
-            font-size: 16px;
+                font-size: 16px;
             }
-            
+
             #closeSidebar {
-            padding: 3px 6px;
-            font-size: 12px;
+                padding: 3px 6px;
+                font-size: 12px;
             }
-            
+
             .historyItem {
-            font-size: 13px;
-            padding: 8px;
+                font-size: 13px;
+                padding: 8px;
             }
-            }
+        }
     </style>
 
 
@@ -452,13 +452,13 @@
             const botDiv = document.createElement("div");
             botDiv.classList.add("message", "bot");
             botDiv.innerHTML = `
-                <div class="icon"><i class="fas fa-robot"></i></div>
-                <div class="text">${data.response}</div>
-              <div class="feedback">
-  <span class="thumb" data-rating="👍" data-question="${message}" data-answer="${data.response}">👍</span>
-  <span class="thumb" data-rating="👎" data-question="${message}" data-answer="${data.response}">👎</span>
-</div>
-`;
+            <div class="icon"><i class="fas fa-robot"></i></div>
+            <div class="text">${data.response}</div>
+            <div class="feedback">
+            <span class="thumb" data-rating="👍" data-question="${message}" data-answer="${data.response}">👍</span>
+            <span class="thumb" data-rating="👎" data-question="${message}" data-answer="${data.response}">👎</span>
+            </div> `;
+
             document.getElementById("messages").appendChild(botDiv);
             // Shows the bot's reply in a bubble.
             // Adds two feedback buttons: 👍 and 👎
@@ -534,7 +534,7 @@
                     const summary = chat[0]?.length > 50 ? chat[0].substring(0, 50) + "..." : chat[0];
 
                     // Show only summary in the chat list
-                    chatBlock.innerHTML =  ` <strong>Chat ${index + 1}:</strong> ${summary}`;
+                    chatBlock.innerHTML = ` <strong>Chat ${index + 1}:</strong> ${summary}`;
 
                     // On click, replay full chat
                     chatBlock.addEventListener("click", function () {
